@@ -1,0 +1,15 @@
+PODS:
+  - AWSCore (2.4.4)
+  - AWSMachineLearning (2.4.4):
+    - AWSCore (= 2.4.4)
+
+DEPENDENCIES:
+  - AWSMachineLearning
+
+SPEC CHECKSUMS:
+  AWSCore: 67be10cc1e295e8238809e980fb1572b9e2ad8e6
+  AWSMachineLearning: 7b4cca1b3c826bbbccbf8fa6aa9565ac21c4aeaf
+
+PODFILE CHECKSUM: 6a7d3e7eb04e3f735bdc3203986f7d418aeca02c
+
+COCOAPODS: 1.0.0

@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6211" systemVersion="14A298i" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6204"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="Client2" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -15,11 +17,50 @@
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <pickerView tag="1" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CMH-o3-8Wo" userLabel="Day Picker">
+                                <rect key="frame" x="255" y="38" width="61" height="216"/>
+                            </pickerView>
+                            <pickerView tag="2" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3MN-2V-FfO" userLabel="Station Picker">
+                                <rect key="frame" x="324" y="38" width="110" height="216"/>
+                            </pickerView>
+                            <datePicker contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="date" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="yVr-DM-klu">
+                                <rect key="frame" x="0.0" y="38" width="247" height="216"/>
+                                <date key="date" timeIntervalSinceReferenceDate="488732140.511769">
+                                    <!--2016-06-27 14:55:40 +0000-->
+                                </date>
+                                <date key="minimumDate" timeIntervalSinceReferenceDate="473338800">
+                                    <!--2016-01-01 11:00:00 +0000-->
+                                </date>
+                                <date key="maximumDate" timeIntervalSinceReferenceDate="631105200">
+                                    <!--2020-12-31 11:00:00 +0000-->
+                                </date>
+                            </datePicker>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IB1-SK-haC" customClass="BarChartView" customModule="Charts">
+                                <rect key="frame" x="0.0" y="262" width="431" height="330"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailingMargin" secondItem="3MN-2V-FfO" secondAttribute="trailing" constant="-17" id="ObP-Ng-wQO"/>
+                            <constraint firstItem="yVr-DM-klu" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="-20" id="TWs-av-Fte"/>
+                            <constraint firstItem="3MN-2V-FfO" firstAttribute="leading" secondItem="CMH-o3-8Wo" secondAttribute="trailing" constant="8" id="b86-Ka-7jx"/>
+                            <constraint firstItem="CMH-o3-8Wo" firstAttribute="leading" secondItem="yVr-DM-klu" secondAttribute="trailing" constant="8" id="gAs-mD-kKH"/>
+                            <constraint firstItem="CMH-o3-8Wo" firstAttribute="leading" secondItem="yVr-DM-klu" secondAttribute="trailing" constant="8" id="xpS-lt-19h"/>
+                            <constraint firstItem="3MN-2V-FfO" firstAttribute="leading" secondItem="CMH-o3-8Wo" secondAttribute="trailing" constant="8" id="yAv-ft-qfQ"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="BarChart" destination="IB1-SK-haC" id="IKu-VP-LYj"/>
+                        <outlet property="DatePicker" destination="yVr-DM-klu" id="E6E-9t-h1s"/>
+                        <outlet property="dayPicker" destination="CMH-o3-8Wo" id="5OH-h3-8tL"/>
+                        <outlet property="stationPicker" destination="3MN-2V-FfO" id="Coq-yD-cyO"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="228" y="541"/>
         </scene>
     </scenes>
 </document>
