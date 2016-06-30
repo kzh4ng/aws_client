@@ -13,7 +13,7 @@ import AWSMachineLearning
 class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
     
     //MARK: Properties
-
+    
     @IBOutlet weak var dayPicker: UIPickerView!         //tag #1
     @IBOutlet weak var stationPicker: UIPickerView!     //tag #2
     @IBOutlet weak var DatePicker: UIDatePicker!        //tag #0
@@ -32,6 +32,12 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var numberOfDays = 1
     var stationValue: String = "01A" //default value, row 0 in the pickerView
     var date: NSDate = NSDate()
+    var graphDisplayed: Bool = false
+    
+    var GlobalMainQueue: dispatch_queue_t {
+        return dispatch_get_main_queue()
+    }
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,11 +51,11 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         dayPickerDataSource += 1...14
         
         refreshPredictions()
-        if predictedVolumes.count == 24*numberOfDays { //wait for predictions
-            populateChart()
-        }
-    }
+        
 
+        
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -83,6 +89,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     {
         if pickerView.tag == 1 {        //number of days
             numberOfDays = dayPickerDataSource[row]
+
         }
         else if pickerView.tag == 2 {   //station picker
             stationValue = stationPickerDataSource[row]
@@ -90,10 +97,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         else {                          //date picker
             date = DatePicker.date
         }
+        
         refreshPredictions()
-        if predictedVolumes.count == 24*numberOfDays { //wait for predictions
-            populateChart()
-        }
     }
     
     //MARK: Bar Chart
@@ -102,12 +107,12 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         
         var chartVolumeData = [ChartDataEntry]()
         var times = [String]()
-        
+        precondition(predictedVolumes.count >= inputs.count)
         for index in 0...inputs.count-1 {
             times.append(inputs[index]["HR"]!)
             chartVolumeData.append(BarChartDataEntry(value: predictedVolumes[index], xIndex: index))
         }
-            
+        
         let chartDataSet = BarChartDataSet(yVals: chartVolumeData, label: "Volume")
         let chartData = BarChartData(xVals: times, dataSets: [chartDataSet])
         
@@ -128,14 +133,24 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         predictedVolumes = []
         
         generateInputs()
-        let semaphore = dispatch_semaphore_create(0)
-        
+
         if predictedVolumes.count < numberOfDays*24 { //fetch predictions for each hour
-            fetchPredictions(semaphore)
+            fetchPredictions()
             print("inside")
-            dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
         }
-        print( "done")
+        
+        while predictedVolumes.count < 24 * numberOfDays {
+           // print(predictedVolumes.count)
+        }
+        populateChart()
+        
+        /*let delayInSeconds = 1.0
+        let popTime = dispatch_time(DISPATCH_TIME_NOW,
+                                    Int64(delayInSeconds * Double(NSEC_PER_SEC))) // 1
+        dispatch_after(popTime, GlobalMainQueue) { // 2
+            self.populateChart()
+
+        }*/
     }
     
     func predict(mlModelId: String, record: [String: String]) -> AWSTask {
@@ -146,7 +161,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return MachineLearning!.predict(predictInput)
     }
     
-    func fetchPredictions(semaphore:dispatch_semaphore_t) {
+    func fetchPredictions() {
         MachineLearning = AWSMachineLearning.defaultMachineLearning()
         let getMLModelInput  = AWSMachineLearningGetMLModelInput()
         let model_id = Config.modelID
@@ -173,15 +188,11 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                         
                         //add prediction to cached array
                         self.predictedVolumes.append(predictedVolume.roundToPlaces(4))
-                        dispatch_semaphore_signal(semaphore)
                         return nil
                     }
                 }
             }
             return nil
-        }
-        if predictedVolumes.count == 24*numberOfDays { //wait for predictions
-            populateChart()
         }
     }
     
@@ -218,8 +229,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             }
         }
     }
-    
-
 
 }
 
