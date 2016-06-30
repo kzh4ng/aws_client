@@ -139,12 +139,12 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             print("inside")
         }
         
-        while predictedVolumes.count < 24 * numberOfDays {
+        /*while predictedVolumes.count < 24 * numberOfDays {
            // print(predictedVolumes.count)
         }
         populateChart()
         
-        /*let delayInSeconds = 1.0
+        let delayInSeconds = 1.0
         let popTime = dispatch_time(DISPATCH_TIME_NOW,
                                     Int64(delayInSeconds * Double(NSEC_PER_SEC))) // 1
         dispatch_after(popTime, GlobalMainQueue) { // 2
@@ -179,8 +179,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             }
             else {
                 self.endpoint = getOutput.endpointInfo?.endpointUrl
+                var tasks: [AWSTask] = [AWSTask]()
                 for input in self.inputs {
-                    self.predict(model_id, record: input).continueWithSuccessBlock {(t) -> AnyObject? in
+                    tasks.append(self.predict(model_id, record: input).continueWithSuccessBlock {(t) -> AnyObject? in
                         let prediction: AWSMachineLearningPredictOutput = t.result as! AWSMachineLearningPredictOutput
                         let predictedVolume = prediction.prediction?.predictedValue as! Double
                         
@@ -189,8 +190,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                         //add prediction to cached array
                         self.predictedVolumes.append(predictedVolume.roundToPlaces(4))
                         return nil
-                    }
+                        })
                 }
+                AWSTask.init(forCompletionOfAllTasks: tasks).continueWithSuccessBlock({(task: AWSTask) -> AnyObject? in
+                    self.populateChart()
+                    return nil
+                })
+
             }
             return nil
         }
