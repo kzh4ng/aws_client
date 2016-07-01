@@ -84,6 +84,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int)
     {
+        
         if pickerView.tag == 1 {        //number of days
             numberOfDays = dayPickerDataSource[row]
             if startDate == DatePicker.date {
@@ -91,11 +92,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 addPredictions(previousDayValue, additionalDaysAmount: numberOfDays-previousDayValue)
             }
             else {
+                startDate = DatePicker.date
                 refreshAllPredictions()
             }
             
         }
         else {                          //station picker
+            startDate = DatePicker.date
             stationValue = stationPickerDataSource[row]
             refreshAllPredictions()
         }
