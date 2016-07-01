@@ -26,12 +26,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var endpoint: String?
     
     var inputs: [[String:String]] = []
+    var newInputs: [[String:String]] = []
     var predictedVolumes: [Double] = []
     var dayPickerDataSource = [Int]()
     var stationPickerDataSource = ["01A", "01B"]
     var numberOfDays = 1
     var stationValue: String = "01A" //default value, row 0 in the pickerView
-    var date: NSDate = NSDate()
+    var startDate: NSDate = NSDate()
     var graphDisplayed: Bool = false
     
     var GlobalMainQueue: dispatch_queue_t {
@@ -50,15 +51,11 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         
         dayPickerDataSource += 1...14
         
-        refreshPredictions()
-        
-
-        
+        refreshAllPredictions()
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
     //MARK: PickerView
@@ -89,16 +86,19 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     {
         if pickerView.tag == 1 {        //number of days
             numberOfDays = dayPickerDataSource[row]
-
+            if startDate == DatePicker.date {
+                var previousDayValue = predictedVolumes.count/24
+                addPredictions(previousDayValue, additionalDaysAmount: numberOfDays-previousDayValue)
+            }
+            else {
+                refreshAllPredictions()
+            }
+            
         }
-        else if pickerView.tag == 2 {   //station picker
+        else {                          //station picker
             stationValue = stationPickerDataSource[row]
+            refreshAllPredictions()
         }
-        else {                          //date picker
-            date = DatePicker.date
-        }
-        
-        refreshPredictions()
     }
     
     //MARK: Bar Chart
@@ -108,6 +108,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         var chartVolumeData = [ChartDataEntry]()
         var times = [String]()
         precondition(predictedVolumes.count >= inputs.count)
+        
         for index in 0...inputs.count-1 {
             times.append(inputs[index]["HR"]!)
             chartVolumeData.append(BarChartDataEntry(value: predictedVolumes[index], xIndex: index))
@@ -118,39 +119,26 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         
         BarChart.data = chartData
         BarChart.descriptionText = ""
-        chartDataSet.colors = ChartColorTemplates.vordiplom()
+        chartDataSet.colors = ChartColorTemplates.material()
         BarChart.xAxis.labelPosition = .Bottom
         BarChart.legend.enabled = false
         BarChart.animate(yAxisDuration: 1.5, easingOption: .EaseInOutQuart)
         
     }
     
-    
     //MARK: AWS Machine Learning
     
-    func refreshPredictions() {
+    func refreshAllPredictions() {
         inputs = []
         predictedVolumes = []
         
-        generateInputs()
-
-        if predictedVolumes.count < numberOfDays*24 { //fetch predictions for each hour
-            fetchPredictions()
-            print("inside")
-        }
-        
-        /*while predictedVolumes.count < 24 * numberOfDays {
-           // print(predictedVolumes.count)
-        }
-        populateChart()
-        
-        let delayInSeconds = 1.0
-        let popTime = dispatch_time(DISPATCH_TIME_NOW,
-                                    Int64(delayInSeconds * Double(NSEC_PER_SEC))) // 1
-        dispatch_after(popTime, GlobalMainQueue) { // 2
-            self.populateChart()
-
-        }*/
+        generateInputs(nil, amount: nil)
+        fetchPredictions(inputs)
+    }
+    
+    func addPredictions(previousDaysAmount: Int, additionalDaysAmount: Int) {
+        generateInputs(startDate.dateByAddingTimeInterval(86400*Double(previousDaysAmount)), amount: additionalDaysAmount-previousDaysAmount)
+        fetchPredictions(newInputs)
     }
     
     func predict(mlModelId: String, record: [String: String]) -> AWSTask {
@@ -161,7 +149,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return MachineLearning!.predict(predictInput)
     }
     
-    func fetchPredictions() {
+    //establishes safe connection with AWS model and appends predictions to predictedVolumes
+    func fetchPredictions(input: [[String:String]]) {
         MachineLearning = AWSMachineLearning.defaultMachineLearning()
         let getMLModelInput  = AWSMachineLearningGetMLModelInput()
         let model_id = Config.modelID
@@ -180,7 +169,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             else {
                 self.endpoint = getOutput.endpointInfo?.endpointUrl
                 var tasks: [AWSTask] = [AWSTask]()
-                for input in self.inputs {
+                for input in input {
                     tasks.append(self.predict(model_id, record: input).continueWithSuccessBlock {(t) -> AnyObject? in
                         let prediction: AWSMachineLearningPredictOutput = t.result as! AWSMachineLearningPredictOutput
                         let predictedVolume = prediction.prediction?.predictedValue as! Double
@@ -202,12 +191,25 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         }
     }
     
-    func generateInputs(){
-        var currentDate = date
-        var hour = currentDate.hour()
+    //@param: starting day from which to generate inputs, and the number of days
+    //by default generates inputs for the whole 'inputs' array specified by 'numberOfDays'
+    func generateInputs(start: NSDate?, amount: Int?){
+        var currentDate: NSDate
+        var timeframe: Int
+        self.newInputs = []
+        
+        if start != nil {
+            currentDate = start!
+            timeframe = amount!
+        }
+        else {
+            currentDate = startDate
+            timeframe = numberOfDays
+        }
+        var hour = 0
         
         //insert inputs for each hour
-        for _ in 1...numberOfDays*24 {
+        for _ in 1...timeframe*24 {
             var hourField = String(hour)
             //insert zero if hour < 10 for HH format
             if hour < 10 {
@@ -224,6 +226,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             ]
             
             inputs.append(dict)
+            newInputs.append(dict)
+            
             
             //reset hour to zero and change date to tomorrow
             if hour == 23 {
