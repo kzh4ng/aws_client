@@ -16,6 +16,7 @@
 		3474B3E81D21774A0059B2A0 /* SharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3474B3E71D21774A0059B2A0 /* SharedData.swift */; };
 		3474B3F81D2191070059B2A0 /* Charts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3474B3F11D2190E10059B2A0 /* Charts.framework */; };
 		3474B3F91D2191070059B2A0 /* Charts.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3474B3F11D2190E10059B2A0 /* Charts.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		34D2D7F21D5BB42A00102482 /* Flask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D2D7F11D5BB42A00102482 /* Flask.swift */; };
 		34E8EF051D22D626008D67F5 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E8EF041D22D626008D67F5 /* Config.swift */; };
 /* End PBXBuildFile section */
 
@@ -82,6 +83,7 @@
 		3474B3E11D2175C40059B2A0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3474B3E71D21774A0059B2A0 /* SharedData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SharedData.swift; sourceTree = "<group>"; };
 		3474B3E91D2190E10059B2A0 /* Charts.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Charts.xcodeproj; path = "Charts-master/Charts/Charts.xcodeproj"; sourceTree = "<group>"; };
+		34D2D7F11D5BB42A00102482 /* Flask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Flask.swift; sourceTree = "<group>"; };
 		34E8EF041D22D626008D67F5 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Config.swift; path = ../Config.swift; sourceTree = "<group>"; };
 		F916FA6D54D2588F48C32B70 /* Pods-Client2.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Client2.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Client2/Pods-Client2.debug.xcconfig"; sourceTree = "<group>"; };
 		FE07B8C8154759C475E5AF39 /* Pods_Client2.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Client2.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -133,6 +135,7 @@
 				3474B3D51D2175C40059B2A0 /* AppDelegate.swift */,
 				34E8EF041D22D626008D67F5 /* Config.swift */,
 				3474B3D71D2175C40059B2A0 /* ViewController.swift */,
+				34D2D7F11D5BB42A00102482 /* Flask.swift */,
 				3474B3D91D2175C40059B2A0 /* Main.storyboard */,
 				3474B3E71D21774A0059B2A0 /* SharedData.swift */,
 				3474B3DC1D2175C40059B2A0 /* Assets.xcassets */,
@@ -327,6 +330,7 @@
 				3474B3E81D21774A0059B2A0 /* SharedData.swift in Sources */,
 				34E8EF051D22D626008D67F5 /* Config.swift in Sources */,
 				3474B3D81D2175C40059B2A0 /* ViewController.swift in Sources */,
+				34D2D7F21D5BB42A00102482 /* Flask.swift in Sources */,
 				3474B3D61D2175C40059B2A0 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

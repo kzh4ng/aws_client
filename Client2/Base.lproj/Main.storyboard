@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -18,13 +18,13 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <pickerView tag="1" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CMH-o3-8Wo" userLabel="Day Picker">
-                                <rect key="frame" x="255" y="38" width="61" height="216"/>
+                                <rect key="frame" x="255" y="99" width="61" height="216"/>
                             </pickerView>
                             <pickerView tag="2" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3MN-2V-FfO" userLabel="Station Picker">
-                                <rect key="frame" x="324" y="38" width="90" height="216"/>
+                                <rect key="frame" x="324" y="99" width="90" height="216"/>
                             </pickerView>
                             <datePicker contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="date" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="yVr-DM-klu">
-                                <rect key="frame" x="0.0" y="38" width="247" height="216"/>
+                                <rect key="frame" x="0.0" y="99" width="247" height="216"/>
                                 <date key="date" timeIntervalSinceReferenceDate="488732140.511769">
                                     <!--2016-06-27 14:55:40 +0000-->
                                 </date>
@@ -36,27 +36,37 @@
                                 </date>
                             </datePicker>
                             <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IB1-SK-haC" customClass="BarChartView" customModule="Charts">
-                                <rect key="frame" x="20" y="269" width="374" height="459"/>
+                                <rect key="frame" x="20" y="315" width="374" height="413"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Start Date" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="edh-9E-qTG">
-                                <rect key="frame" x="84" y="20" width="79" height="21"/>
+                                <rect key="frame" x="84" y="70" width="79" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="# of Days" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="L2J-ZQ-lug">
-                                <rect key="frame" x="246" y="19" width="78" height="21"/>
+                                <rect key="frame" x="246" y="70" width="78" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Station" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zKV-0Q-yh1">
-                                <rect key="frame" x="340" y="20" width="58" height="21"/>
+                                <rect key="frame" x="340" y="70" width="58" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="kKy-GN-F8P">
+                                <rect key="frame" x="161" y="34" width="93" height="29"/>
+                                <segments>
+                                    <segment title="AWS"/>
+                                    <segment title="Flask"/>
+                                </segments>
+                                <connections>
+                                    <action selector="ModeChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="cGS-ia-56t"/>
+                                </connections>
+                            </segmentedControl>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
@@ -64,6 +74,7 @@
                     <connections>
                         <outlet property="BarChart" destination="IB1-SK-haC" id="IKu-VP-LYj"/>
                         <outlet property="DatePicker" destination="yVr-DM-klu" id="E6E-9t-h1s"/>
+                        <outlet property="ModePicker" destination="kKy-GN-F8P" id="825-Mg-FZW"/>
                         <outlet property="dayPicker" destination="CMH-o3-8Wo" id="5OH-h3-8tL"/>
                         <outlet property="stationPicker" destination="3MN-2V-FfO" id="Coq-yD-cyO"/>
                     </connections>
