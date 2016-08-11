@@ -26,15 +26,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     //Caching endpoint
     var endpoint: String?
     
-    var inputs: [[String:String]] = []
-    var newInputs: [[String:String]] = []
-    //array of volumes from model
+    var inputs: [[String:String]] = []                  //array of all inputs
+    var newInputs: [[String:String]] = []               //array of inputs that need predictions, (if the user wants more
     var predictionsAWS: [Double] = []
     var predictionsFlask: [Double] = []
     var dayPickerDataSource = [Int]()
     var stationPickerDataSource = ["01A", "01B"]
     var numberOfDays = 1
-    var flaskString: NSString = ""
     var stationValue: String = "01A" //default value, row 0 in the pickerView
     var startDate: NSDate = NSDate()
     var flaskModel: Bool = false        //true sets the prediction model to flask, false gives it to AWS
@@ -51,48 +49,10 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         dayPickerDataSource += 1...14
         
         refreshAllPredictions()
-        //flask()
-
-        
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-    }
-    
-    func flask(){
-        let startTime = inputs[0] as [String:String]
-        let url = String(format: "http://wimnow.com:5001/success/%@/%@/%@/%X", startTime["HR"]!, startTime["DAY_OF_YEAR"]!,startTime["WEEK_DAY"]!,numberOfDays)
-        let request = NSMutableURLRequest(URL: NSURL(string: url)!)
-        request.HTTPMethod = "GET"
-        let config: NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
-        config.requestCachePolicy = NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData
-        let t = NSURLSession.init(configuration: config)
-        let task = t.dataTaskWithRequest(request) { data, response, error in
-            guard error == nil && data != nil else {                                                          // check for fundamental networking error
-                print("error!!!!!!=\(error)")
-                return
-            }
-            
-            if let httpStatus = response as? NSHTTPURLResponse where httpStatus.statusCode != 200 {           // check for http errors
-                print("statusCode should be 200, but is!!!!!! \(httpStatus.statusCode)")
-                print("response !!!!!!= \(response)")
-            }
-            
-            let responseString = NSString(data: data!, encoding: NSUTF8StringEncoding)
-            self.flaskString = responseString!
-            let json = responseString?.parseJSONString
-            for index in 0...self.numberOfDays*24-1{
-                var item = json![index] as? [String:AnyObject]
-                let value = item!["prediction"]! as? Double
-                self.predictionsFlask.append(value!)
-            }
-            
-            print("this is the parsed json \(self.predictionsFlask[0])")
-            print("responseString !!!!!!= \(responseString!)")
-            self.populateChart()
-        }
-        task.resume()
     }
     
     //MARK: PickerView
@@ -164,38 +124,45 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         }
     }
     
-    //MARK: Bar Chart
+    //MARK: Flask
     
-    func populateChart(){
-        
-        var chartVolumeData = [ChartDataEntry]()
-        var times = [String]()
-       
-        
-        if flaskModel {
-            precondition(predictionsFlask.count >= inputs.count)
-            for index in 0...inputs.count-1 {
-                times.append(inputs[index]["HR"]!)
-                chartVolumeData.append(BarChartDataEntry(value: predictionsFlask[index], xIndex: index))
+    //Ignores any local caching and sends a GET request, parses JSON array and stores predictions in predictionsFlask
+    func flask(){
+        let startTime = inputs[0] as [String:String]
+        let url = String(format: "http://wimnow.com:5001/success/%@/%@/%@/%X", startTime["HR"]!, startTime["DAY_OF_YEAR"]!,startTime["WEEK_DAY"]!,numberOfDays)
+        let request = NSMutableURLRequest(URL: NSURL(string: url)!)
+        request.HTTPMethod = "GET"
+        let config: NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
+        config.requestCachePolicy = NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData
+        let t = NSURLSession.init(configuration: config)
+        let task = t.dataTaskWithRequest(request) { data, response, error in
+            guard error == nil && data != nil else {                                                          // check for fundamental networking error
+                print("error! = \(error)")
+                return
             }
-        }
-        else {
-            for index in 0...inputs.count-1 {
-                times.append(inputs[index]["HR"]!)
-                chartVolumeData.append(BarChartDataEntry(value: predictionsAWS[index], xIndex: index))
+            
+            if let httpStatus = response as? NSHTTPURLResponse where httpStatus.statusCode != 200 {           // check for http errors
+                print("statusCode should be 200, but is \(httpStatus.statusCode)")
+                print("response = \(response)")
             }
+            
+            let responseString = NSString(data: data!, encoding: NSUTF8StringEncoding)
+            let json = responseString?.parseJSONString
+            for index in 0...self.numberOfDays*24-1{
+                var item = json![index] as? [String:AnyObject]
+                let value = item!["prediction"]! as? Double
+                self.predictionsFlask.append(value!)
+            }
+            self.populateChart()
         }
-        
-        
-        let chartDataSet = BarChartDataSet(yVals: chartVolumeData, label: "Volume")
-        let chartData = BarChartData(xVals: times, dataSets: [chartDataSet])
-        
-        BarChart.data = chartData
-        //chartDataSet.colors = ChartColorTemplates.vordiplom()
-        BarChart.xAxis.labelPosition = .Top
-        BarChart.descriptionText = ""
-        BarChart.legend.enabled = false
-        BarChart.animate(yAxisDuration: 1.5, easingOption: .EaseInOutQuart)
+        task.resume()
+    }
+    
+    func query(){
+        inputs = []
+        predictionsFlask = []
+        generateInputs(nil, amount: nil)
+        flask()
     }
     
     //MARK: AWS Machine Learning
@@ -224,28 +191,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         else if newDaysAmount == previousDaysAmount {   //if days amount is unchanged
             self.populateChart()
         }
-        else {
+        else {                                          //if we want more days
             generateInputs(startDate.dateByAddingTimeInterval(86400*Double(previousDaysAmount)), amount: newDaysAmount-previousDaysAmount)
             fetchPredictions(newInputs)
         }
     }
-    
-    func query(){
-        inputs = []
-        predictionsFlask = []
-        generateInputs(nil, amount: nil)
-        flask()
-    }
-    
-    func predict(mlModelId: String, record: [String: String]) -> AWSTask {
-        let predictInput: AWSMachineLearningPredictInput = AWSMachineLearningPredictInput()
-        predictInput.predictEndpoint = endpoint
-        predictInput.MLModelId = mlModelId
-        predictInput.record = record
-        return MachineLearning!.predict(predictInput)
-    }
-    
-    //establishes safe connection with AWS model and appends predictions to predictionsAWS, input parameter accomodates newInputs
+
+    //establishes safe connection with AWS model and appends predictions to predictionsAWS, fetches predictions for whole 'input' array
     func fetchPredictions(input: [[String:String]]) {
         MachineLearning = AWSMachineLearning.defaultMachineLearning()
         let getMLModelInput  = AWSMachineLearningGetMLModelInput()
@@ -287,6 +239,14 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         }
     }
     
+    func predict(mlModelId: String, record: [String: String]) -> AWSTask {
+        let predictInput: AWSMachineLearningPredictInput = AWSMachineLearningPredictInput()
+        predictInput.predictEndpoint = endpoint
+        predictInput.MLModelId = mlModelId
+        predictInput.record = record
+        return MachineLearning!.predict(predictInput)
+    }
+    
     //@param: starting day from which to generate inputs, and the number of days for which to generate inputs
     //by default generates inputs for the whole 'inputs' array specified by 'numberOfDays'
     func generateInputs(start: NSDate?, amount: Int?){
@@ -312,8 +272,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             let dayOfWeek = String(currentDate.dayOfWeek())
             let dict:[String:String] = [
                 "HR" : hourField,
-                //"DT" : dateString,
-                //"SITE_EXT" : stationValue,
                 "WEEK_DAY" : dayOfWeek,
                 "DAY_OF_YEAR" : String(doy)
             ]
@@ -324,11 +282,43 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             //reset hour to zero and change date to tomorrow
             if hour == 23 {
                 currentDate = currentDate.tomorrow()
-                hour = 0
             }
-            else {
-                hour += 1
+            hour = (hour+1)%23
+
+        }
+    }
+    
+    //MARK: Bar Chart
+    
+    //displays traffic volumes from either predictionsFlask or predictionsAWS
+    func populateChart(){
+        
+        var chartVolumeData = [ChartDataEntry]()
+        var times = [String]()
+        
+        
+        if flaskModel {
+            precondition(predictionsFlask.count >= inputs.count)
+            for index in 0...inputs.count-1 {
+                times.append(inputs[index]["HR"]!)
+                chartVolumeData.append(BarChartDataEntry(value: predictionsFlask[index], xIndex: index))
             }
         }
+        else {
+            for index in 0...inputs.count-1 {
+                times.append(inputs[index]["HR"]!)
+                chartVolumeData.append(BarChartDataEntry(value: predictionsAWS[index], xIndex: index))
+            }
+        }
+        
+        
+        let chartDataSet = BarChartDataSet(yVals: chartVolumeData, label: "Volume")
+        let chartData = BarChartData(xVals: times, dataSets: [chartDataSet])
+        
+        BarChart.data = chartData
+        BarChart.xAxis.labelPosition = .Top
+        BarChart.descriptionText = ""
+        BarChart.legend.enabled = false
+        BarChart.animate(yAxisDuration: 1.5, easingOption: .EaseInOutQuart)
     }
 }
